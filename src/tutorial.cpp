@@ -25,6 +25,8 @@ int main()
 		cout << i   << "	fitNess is " << fitNess << endl;
 	}
 	//static_constrn.minArrTimeAndMaxEmergentSolution()
+	///
+	
 	cout << "end" << endl;
 	//int ppp;
 	//std::cin >> ppp;
