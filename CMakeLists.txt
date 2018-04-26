@@ -13,5 +13,9 @@ message("PROJECT_SOURCE_DIR" ${PROJECT_SOURCE_DIR})
 #	IMPORTED_IMPLIB   ${PROJECT_SOURCE_DIR}/lib/libzmq.lib 
 #)
 
-#测试主函数的文件夹
+#原来的静态的排序方法
 add_subdirectory(OrgSrc mpda_OrgStaticConstrn)
+#随机生成排序方法
+add_subdirectory(RandSrc mpda_RandConstrn)
+#新的静态的排序方法
+add_subdirectory(ReSrc mpda_ReStaticConstrn)

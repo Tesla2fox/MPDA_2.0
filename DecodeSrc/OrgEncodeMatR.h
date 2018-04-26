@@ -1,8 +1,8 @@
 #pragma once
 #include "TaskPnt.hpp"
-//#include "EncodeMat.h"
 
 
+//解码的程序
 namespace decode {
 	//using 
 
@@ -43,10 +43,12 @@ namespace decode {
 			_vTaskAgent(*vAgPtr), _vTaskPnt(*vTaskPtr), _taskDisMat(*taskDisMatPtr), _ag2taskDisMat(*ag2taskDisMatPtr),
 			_agentNum(vAgPtr->size()),_taskNum(vTaskPtr->size())
 		{
+#ifdef _DEBUG
 			conf_debug.open("deg.txt", std::ios::trunc);
 			conf_debug.precision(15);
 			conf_debug2.open("deg2.txt", std::ios::trunc);
 			conf_debug2.precision(15);
+#endif // _DEBUG
 		};
 		~OrgEncodeMat();
 
@@ -102,7 +104,9 @@ namespace decode {
 			double _changeRatioTime;
 			bool iscompleted = false;
 			double calExecuteDur();
-			void calCurrentState(double const & arriveTime);
+			//input 时刻
+			//output vaildBool
+			bool calCurrentState(double const & time);
 			bool StateIsCompleted();
 			void saveAgInfo(size_t const &agID, double const& time, double const& state, size_t const &type);
 			void saveTskInfo(double const & timeVal);

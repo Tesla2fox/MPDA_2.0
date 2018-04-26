@@ -32,8 +32,10 @@ namespace method {
 			_vTaskAgent(*vAgPtr), _vTaskPnt(*vTaskPtr), _taskDisMat(*taskDisMatPtr), _ag2taskDisMat(*ag2taskDisMatPtr),
 			_agentNum(vAgPtr->size()), _taskNum(vTaskPtr->size())
 		{
+//#ifdef _DEBUG
 			c_debug.open("c_deg.txt", std::ios::trunc);
 			c_debug.precision(15);
+//#endif // _DEBUG
 			for (double i = 0; i < 1.01; i += 0.1)
 			{
 				_vMaxWeight.push_back(i);

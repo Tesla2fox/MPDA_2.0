@@ -17,7 +17,8 @@
 #include <limits>
 #include <float.h>
 
-#define M_INFINITY std::numeric_limits<double>::max()
+#define M_MAX std::numeric_limits<double>::max()
+#define M_INF std::numeric_limits<double>::infinity()
 
 using std::vector;
 using std::string;

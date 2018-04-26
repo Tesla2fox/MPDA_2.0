@@ -15,6 +15,7 @@ namespace method {
 	}
 	void RandConstrn::writeSolution()
 	{
+		r_debug << "__________________________" << endl;
 		for (size_t i = 0; i < _agentNum; i++)
 		{
 			r_debug << "agent id" << i;
@@ -24,6 +25,27 @@ namespace method {
 			}
 			r_debug << endl;
 		}
+	}
+
+	bool EnMatEqualOrNot(EnMat const & a, EnMat const &b)
+	{
+		if (a.size() != b.size())
+		{
+			return false;
+		}
+		for (size_t i = 0; i < b.size(); i++)
+		{
+			auto &aUnit = a[i];
+			auto &bUnit = b[i];
+			for (size_t j = 0; j < aUnit.size(); j++)
+			{
+				if (aUnit[j] != bUnit[j])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 }

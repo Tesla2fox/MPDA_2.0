@@ -1,0 +1,19 @@
+time  2018-04-13 09:11:38
+AgentNum 3
+TaskNum 3
+TaskIncreaseRatio  0.15 0.25 0.12
+TaskInitState  5 6 4
+AgentAbility  0.2 0.3 0.4
+TaskDisMat   2.23606797749979 5.0 5.830951894845301
+Ag2TaskDisMat    8.48528137423857  8.06225774829855  13.45362404707371  8.06225774829855  8.246211251235321  13.038404810405298  6.324555320336759  7.0  11.180339887498949
+Encode   0  2  1  2  1  0  1  2  0
+robotPosstion
+<<<<<<<<<
+index 0 pntx = 1  pnty = 2
+index 1 pntx = 3  pnty = 1
+index 2 pntx = 5  pnty = 2
+taskPosition
+<<<<<<<<<
+index 0 pntx = 7  pnty = 8
+index 1 pntx = 5  pnty = 9
+index 2 pntx = 10  pnty = 12

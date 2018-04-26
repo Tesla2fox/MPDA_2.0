@@ -13,11 +13,11 @@ namespace method {
 		RandConstrn(size_t agentNum, size_t taskNum):
 		_agentNum(agentNum),_taskNum(taskNum)
 		{
+			enge.seed(time(nullptr));
 #ifdef _DEBUG
 			r_debug.open("r_deg.txt", std::ios::trunc);
 			r_debug.precision(15);
 #endif // _DEBUG
-			enge.seed(time(nullptr));
 		}
 		void RandSolution();
 		void writeSolution();
@@ -28,4 +28,5 @@ namespace method {
 
 		std::ofstream r_debug;
 	};
+	bool EnMatEqualOrNot(EnMat const &a, EnMat const &b);
 }

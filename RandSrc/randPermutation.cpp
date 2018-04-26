@@ -7,7 +7,7 @@ std::vector<size_t> randPermutation(const size_t &n)
 {
 	//std::default_random_engine eng(time(nullptr));
 	
-	std::uniform_int_distribution<int> dis(1, 2000);
+	std::uniform_int_distribution<int> dis(1, 2000000);
 
 	std::vector<std::tuple<size_t, int>> vUnit;
 	for (size_t i = 0; i < n; i++)

@@ -64,17 +64,17 @@ namespace decode {
 		{
 			//conf_debug << "cal time is " << i++ << endl;
 			//conf_debug << "<<<<<<<<<<<<<<<<<<<<<<<<<" << endl;
-			if (i % 10000 == 0)
-			{
-				cout << "cal time is " << i << endl;
-			}
+			//if (i % 10000 == 0)
+			//{
+			//	cout << "cal time is " << i << endl;
+			//}
 			i++;
 			//cout << "cal time =  " << i++ << endl;
 			//displayEnMat();
 			this->initialize();
 			fitness = this->decodeProcessor();
 		} while (fitness<0);
-		cout << "calTimes is " << i << endl;
+		//cout << "calTimes is " << i << endl;
 		return fitness;
 	}
 
@@ -122,6 +122,7 @@ namespace decode {
 	{
 		bool invalidFitness = false;
 		bool backBoolean = false;
+		bool validStateBoolean = true;
 		while (allTaskPntComplete())
 		{
 			tuple<size_t, size_t> markType = findMotionOrLeaveId();
@@ -178,7 +179,12 @@ namespace decode {
 				else
 				{
 					//conf_debug << " the last current state is " << tkState._currentState << endl;
-					tkState.calCurrentState(arriveTime);
+					validStateBoolean = tkState.calCurrentState(arriveTime);
+					if (!validStateBoolean)
+					{
+						break;
+					}
+
 					//conf_debug << "the task pnt current state is " << tkState._currentState << endl;
 					tkState._currentRatio = tkState._currentRatio - agState._ability;
 					//conf_debug << "the task pnt current Ratio is " << tkState._currentRatio << endl;
@@ -291,9 +297,13 @@ namespace decode {
 				else
 				{
 					//			conf_debug << " the last current state is " << tkState._currentState << endl;
-					tkState.calCurrentState(agState._leaveTime);
+					validStateBoolean = tkState.calCurrentState(agState._leaveTime);
 					//		conf_debug << "the task current state is " << tkState._currentState << endl;
 					//save 
+					if (!validStateBoolean)
+					{
+						break;
+					}
 					tkState.saveAgInfo(leaveId, agState._leaveTime, tkState._currentState, calType::leaveCondition);
 					if (tkState.StateIsCompleted())
 					{
@@ -389,18 +399,31 @@ namespace decode {
 			}
 			if (invalidFitness)
 			{
+#ifdef _DEBUG
+				cout << " this sulotion is locked" << endl;
+#endif // _DEBUG
 				break;
 			}
 			if (backBoolean)
 			{
+#ifdef _DEBUG
+//				cout << "need drawBack" << endl;
+#endif // _DEBUG
 				break;
-			}			
+			}
+			if (!validStateBoolean)
+			{
+#ifdef _DEBUG
+				cout << "the state is invalid, can't figure it" << endl;
+#endif // _DEBUG
+				break;
+			}
 		}
 		if (backBoolean)
 		{
 			return -1;
 		}
-		if (!invalidFitness)
+		if ((!invalidFitness)&&(validStateBoolean))
 		{
 			auto cmpLeaveTime = [=](AgentState const & A, AgentState const &B) {
 				if (A._leaveTime < B._leaveTime)
@@ -417,7 +440,7 @@ namespace decode {
 			return fitnessInter->_leaveTime;
 		}
 		//conf_debug << " fitness is wrong " <<"the value is "<<INFINITY<< endl;
-		return INFINITY;
+		return M_INF;
 	}
 
 	bool OrgEncodeMat::saveTaskStateData()
@@ -580,12 +603,18 @@ namespace decode {
 		return 	log(_completedThreshold / _currentState) / _currentRatio;
 	}
 
-	void OrgEncodeMat::TaskState::calCurrentState(double const & Time)
+	bool OrgEncodeMat::TaskState::calCurrentState(double const & Time)
 	{
 		double changeDur = Time - this->_changeRatioTime;
 		//conf_debug << "_currentState is " << _currentState << endl;
 		_currentState = _currentState*exp(changeDur*_currentRatio);
+		if (_currentState > M_MAX)
+		{
+			//this solution is invaild
+			return false;
+		}
 		this->_changeRatioTime = Time;
+		return true;
 	}
 
 	bool OrgEncodeMat::TaskState::StateIsCompleted()

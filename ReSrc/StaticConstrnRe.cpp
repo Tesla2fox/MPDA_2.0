@@ -1,4 +1,4 @@
-#include "StaticConstrn.hpp"
+#include "StaticConstrnRe.hpp"
 
 namespace method {
 
@@ -136,7 +136,7 @@ namespace method {
 			auto & tskState = _vTaskState[i];
 			for (size_t j = 0; j < _agentNum; j++)
 			{
-				if (tskState._vPreComTime[j] == M_INFINITY)
+				if (tskState._vPreComTime[j] == M_MAX)
 				{
 					double baisRatio = tskState._currentRatio - tskState._vAgAbilityPtr->at(j);
 					if (maxRatioBais < baisRatio)
@@ -232,7 +232,7 @@ namespace method {
 			auto & tskState = _vTaskState[i];
 			for (size_t j = 0; j < _agentNum; j++)
 			{
-				if (tskState._vPreComTime[j] == M_INFINITY)
+				if (tskState._vPreComTime[j] == M_MAX)
 				{
 					double baisRatio = tskState._currentRatio - tskState._vAgAbilityPtr->at(j);
 					if (maxRatioBais < baisRatio)

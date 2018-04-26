@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-message(mpda_OrgStaticConstrn)
+message(mpda_ReStaticConstrn)
 
 include_directories (../DecodeSrc)
 
@@ -23,9 +23,9 @@ set(file_list
 	${file_dir}/OrgEncodeMatR.cpp
 	${file_dir}/OrgEncodeMatR.h
 	#
-	tutorial.cpp
-	StaticConstrn.hpp
-	StaticConstrn.cpp	
+	tutorialRe.cpp
+	StaticConstrnRe.hpp
+	StaticConstrnRe.cpp	
 )
 
 #add—boost
@@ -53,7 +53,7 @@ include_directories(D:\\Eigen3)
 
 message(${Boost_LIBRARIES})
 
-add_executable(mpda_OrgStaticConstrn ${file_list})
+add_executable(mpda_ReStaticConstrn ${file_list})
 
-set_target_properties(mpda_OrgStaticConstrn PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(mpda_ReStaticConstrn PROPERTIES LINKER_LANGUAGE CXX)
 

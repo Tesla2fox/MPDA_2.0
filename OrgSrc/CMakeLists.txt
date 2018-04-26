@@ -57,3 +57,10 @@ add_executable(mpda_OrgStaticConstrn ${file_list})
 
 set_target_properties(mpda_OrgStaticConstrn PROPERTIES LINKER_LANGUAGE CXX)
 
+#设置输出路径
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${PROJECT_BINARY_DIR}/MPDA)
+
+#设置输出名称
+set_target_properties(mpda_OrgStaticConstrn PROPERTIES OUTPUT_NAME "mpda_OrgStaticConstrn"
+											RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+

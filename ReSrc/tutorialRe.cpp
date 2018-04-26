@@ -1,6 +1,6 @@
 #include "stadfx.h"
 #include "ReadConfig.h"
-#include "StaticConstrn.hpp"
+#include "StaticConstrnRe.hpp"
 #include "OrgEncodeMatR.h"
 namespace md = method;
 namespace dc = decode;

@@ -10,6 +10,7 @@ namespace decode
 	void decode::ReadConfig::read()
 	{
 		sscfg::ConfigFile co_list = sscfg::ConfigFile::load(_m_fileName);
+		cout << "fileName is " << _m_fileName << endl;
 		size_t taskNum;
 		size_t agentNum;
 		co_list.get("AgentNum", agentNum);
@@ -38,8 +39,9 @@ namespace decode
 			vAgPtr->push_back(ag);
 		}
 		this->_m_vTaskAgentPtr = vAgPtr;
-
+#ifdef _DEBUG
 		cout << "read the dis mat" << endl;
+#endif // _DEBUG
 		auto taskDisMatPtr = make_shared<decode::DisMap>();
 		auto ag2taskDisMatPtr = make_shared<decode::DisMap>();
 
@@ -74,14 +76,13 @@ namespace decode
 
 		this->_taskDisMatPtr = taskDisMatPtr;
 		this->_ag2taskDisMatPtr = ag2taskDisMatPtr;
-
-
 		
 		//get the encode
 		co_list.get("Encode", this->_encode);
 
-
+#ifdef _DEBUG
 		cout << "read configure successs" << endl;
+#endif // _DEBUG
 	}
 
 	cfgTuple ReadConfig::getCfg()
