@@ -14,8 +14,10 @@ message("PROJECT_SOURCE_DIR" ${PROJECT_SOURCE_DIR})
 #)
 
 #原来的静态的排序方法
-add_subdirectory(OrgSrc mpda_OrgStaticConstrn)
+add_subdirectory(OrgStaticSrc mpda_OrgStaticConstrn)
 #随机生成排序方法
 add_subdirectory(RandSrc mpda_RandConstrn)
 #新的静态的排序方法
-add_subdirectory(ReSrc mpda_ReStaticConstrn)
+add_subdirectory(ReStaticSrc mpda_ReStaticConstrn)
+#原来的动态排序方法
+add_subdirectory(OrgDynamicSrc mpda_OrgDynamicConstrn)

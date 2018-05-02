@@ -1,2 +1,2 @@
 git add . 
-git rm bin/.
+git rm -r bin --cached
