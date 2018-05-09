@@ -15,7 +15,7 @@ namespace decode
 	class ReadConfig
 	{
 	public:
-		ReadConfig(char *filename) :
+		ReadConfig(const char *filename) :
 			_m_fileName(filename)
 		{}
 		~ReadConfig();
@@ -27,7 +27,7 @@ namespace decode
 		DisMapPtr _ag2taskDisMatPtr;
 		vector<size_t> _encode;
 	private:
-		char *_m_fileName;
+		const char *_m_fileName;
 
 	};
 }
