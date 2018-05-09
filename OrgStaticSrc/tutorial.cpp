@@ -37,8 +37,8 @@ int main(int argc, char * argv[])
 		clock_t start, c_end;
 		start = clock();
 		md::StaticConstrn  static_constrn(readCfg._m_vTaskAgentPtr, readCfg._m_vTaskPntPtr, readCfg._taskDisMatPtr, readCfg._ag2taskDisMatPtr);
-		//dirConstrn.initialize();
 		//static_constrn.calculateSolution();
+		//dirConstrn.initialize();
 		static_constrn.minArrTimeAndMaxEmergentSolution();
 		static_constrn.minArrTimeAndMinComTimeSolution();
 		c_end = clock();

@@ -32,8 +32,9 @@ namespace method {
 			_agentNum(vAgPtr->size()), _taskNum(vTaskPtr->size())
 		{
 #ifdef _DEBUG
-			c_debug.open("c_deg.txt", std::ios::trunc);
+			c_debug.open("dy_deg.txt", std::ios::trunc);
 			c_debug.precision(15);
+			c_debug << "动态方法" << endl;
 #endif // _DEBUG
 			for (double i = 0; i < 1.01; i += 0.1)
 			{
@@ -149,11 +150,11 @@ namespace method {
 		{
 		public:
 			TaskState(shared_ptr<vector<double>> &vDPtr, size_t const & agNum , std::ofstream &c_txt):
-				_vAgAbilityPtr(vDPtr),_agentNum(agNum),c_debug(c_txt)
+				_vAgAbilityPtr(vDPtr),_agentNum(agNum),c_debug(c_txt),_onTaskAgID(agNum,false)
 			{
 				for (size_t i = 0; i < 11; i++)
 				{
-					_vWeight.push_back(double(i)/ 10);
+					_vWeight.push_back(double(i) / 10);
 				}
 			}
 			double _initState;
@@ -166,9 +167,17 @@ namespace method {
 			void calCurrentState(double const & arriveTime);
 			bool StateIsCompleted();
 
+			//
+			double _chsComPreTime;
+
+
 			double calAgArrState(size_t const & agID);
 			double preCalExecuteDur(double const &arrTime,double const &ability);
 			double preCalCompleteDur(double const &arrTime, double const &ability);
+
+//set<size_t> _onTaskAgID;
+			
+			vector<bool> _onTaskAgID;
 			size_t _id;
 			//预估的到达时刻
 			vector<double> _vPreArrTime;
@@ -224,6 +233,8 @@ namespace method {
 		vector<double> _vMaxWeight;
 
 		void updateTimeMat(size_t const &chsAgID,size_t const & chsTskID);
+
+		double weightUnit;
 
 
 		//

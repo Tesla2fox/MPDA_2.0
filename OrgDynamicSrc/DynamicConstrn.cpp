@@ -114,22 +114,110 @@ namespace method {
 	}
 	void DynamicConstrn::updateEnmat(size_t const & type)
 	{
+		//到达时间的排序
 		const map<AgTaskPair, size_t> &orderPA{ this->_orderPreFirstArrTime };
 		
-		const map<AgTaskPair, size_t> &orderPA{ this->_orderPreFirstArrTime };
+		//紧急程度的排序
+		const map<AgTaskPair, size_t> &orderPE{ this->_orderPreEmergenceComTime };
 
+#ifdef _DEBUG
+		c_debug << " ____D_____minArrTimeAndMaxEmergentSolution___D_______" << endl;
+#endif // DEBUG
+
+		
+		vector<AgTaskTimePair> vAgTaskOrderVal;
+
+		for (size_t i = 0; i < _agentNum; i++)
+		{
+			for (size_t j = 0; j < _taskNum; j++)
+			{
+				AgTaskPair indexPair(i, j);
+				double orderVal = weightUnit*_orderPreFirstArrTime[indexPair] +
+					(1 - weightUnit)*_orderPreEmergenceComTime[indexPair];
+				vAgTaskOrderVal.push_back(AgTaskTimePair(indexPair, orderVal));
+			}
+		}
+		
+		auto minElementIter
+		= std::min_element(vAgTaskOrderVal.begin(), vAgTaskOrderVal.end(), ComparePreFirstTime(*this));
+		//minElementIter->first
+		
+		size_t chsAgID = (*minElementIter).first.first;
+		size_t chsTskID = (*minElementIter).first.second;
+
+		auto & tskState = _vTaskState[chsTskID];
+
+		tskState._onTaskAgID[chsAgID] = true;		
+		tskState._chsComPreTime = tskState._vPreComTime[chsAgID];
+
+#ifdef _DEBUG
+
+		cout << "find the insert chsAgID and chsTskID" << endl;
+		cout << "chsAgID = " << chsAgID << endl;
+		cout << "chsTskID = " << chsTskID << endl;
+
+		c_debug << "find the insert chsAgID and chsTskID" << endl;
+		c_debug << "chsAgID = " << chsAgID << endl;
+		c_debug << "chsTskID = "<<chsTskID << endl;
+
+		c_debug << "___" << endl;
+#endif // DEBUG
+
+
+		while (tskState._chsComPreTime ==M_MAX)
+		{
+			c_debug << "need add some agent in this task" << endl;
+			if (tskState._onTaskAgID[chsAgID] == false)
+			{
+				//vAgTaskOrderVal.count()
+				if (_orderPreFirstArrTime.count(AgTaskPair(chsAgID, chsTskID)) == 0)
+				{
+
+				}
+				else
+				{
+
+				}
+			}
+		}
+
+		if (tskState._vPreComTime[chsAgID] == M_MAX)
+		{
+			c_debug << "需要补充" << endl;
+			for (size_t i = 0; i < _agentNum; i++)
+			{
+				//该智能体不在该任务点
+				if (tskState._onTaskAgID[chsAgID] == false)
+				{
+					 v  
+				}
+			}
+		}
 		
 	}
 	void DynamicConstrn::DminArrTimeAndMaxEmergentSolution()
 	{
-		do
+		//double weightUnit;
+		for (size_t i = 0; i < _vMaxWeight.size(); i++)
 		{
-			sortPreFirstArrTime();
-			sortPreEmergenceComTime();			
-			updateEnmat(1);
-			updatePreArrAndComTime();
-		} while (true);
+			//当前分配的权重大小
+			weightUnit = this->_vMaxWeight[0];
+#ifdef _DEBUG
+			c_debug << "______weightUnit = " << weightUnit << endl;
+#endif // _DEBUG
 
+			this->initialize();
+			do
+			{
+				this->_orderPreFirstArrTime.clear();
+				this->_orderPreFirstComTime.clear();
+				this->_orderPreEmergenceComTime.clear();
+				sortPreFirstArrTime();
+				sortPreEmergenceComTime();
+				updateEnmat(1);
+				updatePreArrAndComTime();
+			} while (true);
+		}
 	}
 	void DynamicConstrn::sortPreFirstArrTime()
 	{
@@ -378,7 +466,6 @@ namespace method {
 		double comTime = tskState._minElementArrTime + extDur;
 		
 		
-
 	}
 	vector<size_t> DynamicConstrn::findCoordAgent(size_t const & agentid)
 	{
