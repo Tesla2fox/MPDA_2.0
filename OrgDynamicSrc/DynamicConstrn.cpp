@@ -125,6 +125,7 @@ namespace method {
 #endif // DEBUG
 
 		
+		vector<size_t> vChsAgID;
 		vector<AgTaskTimePair> vAgTaskOrderVal;
 		map<AgTaskPair, double> mapAgTaskOrderVal;
 		for (size_t i = 0; i < _agentNum; i++)
@@ -146,11 +147,9 @@ namespace method {
 		size_t chsAgID = (*minElementIter).first.first;
 		size_t chsTskID = (*minElementIter).first.second;
 
-		auto & tskState = _vTaskState[chsTskID];
-
-		tskState._onTaskAgID[chsAgID] = true;		
-		tskState._chsComPreTime = tskState._vPreComTime[chsAgID];
-
+		auto & tskState = _vTaskState[chsTskID];		
+		calChsComPreTime(chsAgID, chsTskID);
+		vChsAgID.push_back(chsAgID);
 
 #ifdef _DEBUG
 		c_debug << "find the insert chsAgID and chsTskID" << endl;
@@ -203,7 +202,9 @@ namespace method {
 			chsAgID = (*maxAgSumOrderValIter).first;
 			
 			//_setAllocated.insert(par)
-			updateTimeMat(chsAgID, chsTskID);
+			///updateTimeMat(chsAgID, chsTskID);
+			calChsComPreTime(chsAgID, chsTskID);		
+			vChsAgID.push_back(chsAgID);
 		}
 
 		//update the agent leave time
@@ -213,7 +214,14 @@ namespace method {
 			auto &agState = _vAgentState[it];
 			agState._leaveTime = tskState._chsComPreTime;
 		}
-
+#ifdef _DEBUG
+		c_debug << "*******************" << endl;
+		for (auto &it :vChsAgID)
+		{
+			c_debug << "chsAgID = " << it << endl;
+		}
+#endif // _DEBUG
+		updateTimeMat(vChsAgID, chsTskID);
 		
 	}
 	void DynamicConstrn::DminArrTimeAndMaxEmergentSolution()
@@ -475,6 +483,22 @@ namespace method {
 				c_debug << endl;
 		}
 	}
+	void DynamicConstrn::writevTaskState()
+	{
+		c_debug << "___________________" << endl;
+		for (size_t i = 0; i < _taskNum; i++)
+		{
+			c_debug << "task id = " << i << endl;
+			auto &tskState = _vTaskState[i];
+			for (size_t j = 0; j < _agentNum; j++)
+			{
+				c_debug << "agent id = " << j <<
+					"	arriveTime = " << tskState._vPreArrTime[j]
+					<< " completeTime = " << tskState._vPreComTime[j] << endl;
+			}
+		}
+		c_debug << "___________________" << endl;
+	}
 	void DynamicConstrn::updateTimeMat(size_t const & chsAgID, size_t const & chsTskID)
 	{
 		//_setAllocated.insert(std::pair<size_t, size_t>(chsAgID, chsTskID));
@@ -515,7 +539,7 @@ namespace method {
 		auto &tskState = _vTaskState[chsTskID];
 
 		tskState.calAgArrState(chsAgID);
-
+		tskState._onTaskAgID[chsTskID] = true;
 		double extDur = tskState.calExecuteDur();
 		if (extDur == M_MAX)
 		{
@@ -528,6 +552,7 @@ namespace method {
 	}
 	void DynamicConstrn::updateTimeMat(vector<size_t> const & vChsAgID, size_t const & chsTskID)
 	{
+		//update all choosen agent predict arrive time and complete time
 		auto &chsTskState = _vTaskState[chsTskID];
 		for (size_t i = 0; i < vChsAgID.size(); i++)
 		{
@@ -546,10 +571,19 @@ namespace method {
 				{
 					double onRoadDur = getRoadDur(j, chsTskID);
 					tskState._vPreArrTime[chsAgID] = onRoadDur + agState._leaveTime;
+					tskState._vPreComTime[chsAgID] = tskState.preCalCompleteDur(tskState._vPreArrTime[chsAgID], _vTaskAgent[j]._ability);
 				}
-				//if(_setAllocated.count())
 			}
 		}
+		//update choosen task pnt 
+		for (size_t i = 0; i < _agentNum; i++)
+		{
+
+		}
+
+#ifdef _DEBUG
+		this->writevTaskState();
+#endif // _DEBUG
 	}
 	vector<size_t> DynamicConstrn::findCoordAgent(size_t const & agentid)
 	{

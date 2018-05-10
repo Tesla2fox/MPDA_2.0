@@ -230,6 +230,7 @@ namespace method {
 		//write txt
 		std::ofstream c_debug;
 		void writeEnMat();
+		void writevTaskState();
 
 
 		//max weight
@@ -237,9 +238,13 @@ namespace method {
 
 		double getRoadDur(size_t const &tsk_id1, size_t const &tsk_id2) const 
 		{
-			if (tsk_id1 > tsk_id2) { std::swap(tsk_id1, tsk_id2); }
-			DisMapIndex index(tsk_id1, tsk_id2);
-			return _taskDisMat.at(index);
+			if (tsk_id1 < tsk_id2) {
+				DisMapIndex index(tsk_id1, tsk_id2);
+				return _taskDisMat.at(index);}
+			else{
+				DisMapIndex index(tsk_id2, tsk_id1);
+				return _taskDisMat.at(index);
+			}
 		}
 		void updateTimeMat(size_t const &chsAgID,size_t const & chsTskID);
 		void infUpdateTimeMat(size_t const &chsAgID, size_t const &chsTskID);
