@@ -46,9 +46,9 @@ namespace method {
 		bool initialize();
 
 		//ggq's method
-		bool sortOnTaskDur();		
+		bool sortOnTaskDur();
 		bool sortOnRoadDur();
-		
+
 		//zhu's method
 
 
@@ -71,7 +71,7 @@ namespace method {
 			const  DynamicConstrn &m_info;
 			bool operator()(AgTaskTimePair const & p1, AgTaskTimePair const &p2)
 			{
-				if (p1.second<p2.second)
+				if (p1.second < p2.second)
 				{
 					return true;
 				}
@@ -90,7 +90,7 @@ namespace method {
 			const  DynamicConstrn &m_info;
 			bool operator()(AgTaskTimePair const & p1, AgTaskTimePair const &p2)
 			{
-				if (p1.second>p2.second)
+				if (p1.second > p2.second)
 				{
 					return true;
 				}
@@ -149,8 +149,8 @@ namespace method {
 		class TaskState
 		{
 		public:
-			TaskState(shared_ptr<vector<double>> &vDPtr, size_t const & agNum , std::ofstream &c_txt):
-				_vAgAbilityPtr(vDPtr),_agentNum(agNum),c_debug(c_txt),_onTaskAgID(agNum,false)
+			TaskState(shared_ptr<vector<double>> &vDPtr, size_t const & agNum, std::ofstream &c_txt) :
+				_vAgAbilityPtr(vDPtr), _agentNum(agNum), c_debug(c_txt), _onTaskAgID(agNum, false)
 			{
 				for (size_t i = 0; i < 11; i++)
 				{
@@ -170,13 +170,15 @@ namespace method {
 			//
 			double _chsComPreTime;
 
+			//can optimal it into a list
+			vector<size_t> _sortedArrTimeAgID;
 
 			double calAgArrState(size_t const & agID);
-			double preCalExecuteDur(double const &arrTime,double const &ability);
+			double preCalExecuteDur(double const &arrTime, double const &ability);
 			double preCalCompleteDur(double const &arrTime, double const &ability);
 
-//set<size_t> _onTaskAgID;
-			
+			//set<size_t> _onTaskAgID;
+
 			vector<bool> _onTaskAgID;
 			size_t _id;
 			//预估的到达时刻
@@ -195,30 +197,31 @@ namespace method {
 			const size_t _agentNum;
 			std::ofstream  &c_debug;
 			vector<double> _vWeight;
+
 		private:
 			double _completedThreshold = 0.1;
 		};
 
 	private:
-		
-		
+
+
 		//不可更改
 		vTaskAgentPtr  const _m_vTaskAgentPtr;
 		vTaskPntPtr  const _m_vTaskPntPtr;
-		DisMapPtr  const _taskDisMatPtr;
-		DisMapPtr  const _ag2taskDisMatPtr;
+		vector<TaskAgent> const &_vTaskAgent;
+		vector<TaskPnt> const  &_vTaskPnt;
 
 		const size_t _taskNum;
 		const size_t _agentNum;
 
-		vector<TaskAgent> const &_vTaskAgent;
-		vector<TaskPnt> const  &_vTaskPnt;
+		DisMapPtr  const _taskDisMatPtr;
+		DisMapPtr  const _ag2taskDisMatPtr;
 		std::map<std::pair<size_t, size_t>, double> const  &_taskDisMat;
 		std::map<std::pair<size_t, size_t>, double>  const &_ag2taskDisMat;
 
 		TimeMat _m_arriveMat;
 		TimeMat _m_completeMat;
-		
+
 		// 智能体状态和任务点状态
 		vector<AgentState> _vAgentState;
 		vector<TaskState> _vTaskState;
@@ -232,7 +235,17 @@ namespace method {
 		//max weight
 		vector<double> _vMaxWeight;
 
+		double getRoadDur(size_t const &tsk_id1, size_t const &tsk_id2) const 
+		{
+			if (tsk_id1 > tsk_id2) { std::swap(tsk_id1, tsk_id2); }
+			DisMapIndex index(tsk_id1, tsk_id2);
+			return _taskDisMat.at(index);
+		}
 		void updateTimeMat(size_t const &chsAgID,size_t const & chsTskID);
+		void infUpdateTimeMat(size_t const &chsAgID, size_t const &chsTskID);
+
+		void calChsComPreTime(size_t const &chsAgID, size_t const & chsTskID);
+		void updateTimeMat(vector<size_t> const & vChsAgID, size_t const & chsTskID);
 
 		double weightUnit;
 

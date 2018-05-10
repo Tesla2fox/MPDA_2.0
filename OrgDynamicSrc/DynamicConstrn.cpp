@@ -126,7 +126,7 @@ namespace method {
 
 		
 		vector<AgTaskTimePair> vAgTaskOrderVal;
-
+		map<AgTaskPair, double> mapAgTaskOrderVal;
 		for (size_t i = 0; i < _agentNum; i++)
 		{
 			for (size_t j = 0; j < _taskNum; j++)
@@ -135,6 +135,7 @@ namespace method {
 				double orderVal = weightUnit*_orderPreFirstArrTime[indexPair] +
 					(1 - weightUnit)*_orderPreEmergenceComTime[indexPair];
 				vAgTaskOrderVal.push_back(AgTaskTimePair(indexPair, orderVal));
+				mapAgTaskOrderVal.insert(AgTaskTimePair(indexPair, orderVal));
 			}
 		}
 		
@@ -150,49 +151,69 @@ namespace method {
 		tskState._onTaskAgID[chsAgID] = true;		
 		tskState._chsComPreTime = tskState._vPreComTime[chsAgID];
 
+
 #ifdef _DEBUG
-
-		cout << "find the insert chsAgID and chsTskID" << endl;
-		cout << "chsAgID = " << chsAgID << endl;
-		cout << "chsTskID = " << chsTskID << endl;
-
 		c_debug << "find the insert chsAgID and chsTskID" << endl;
 		c_debug << "chsAgID = " << chsAgID << endl;
 		c_debug << "chsTskID = "<<chsTskID << endl;
-
 		c_debug << "___" << endl;
 #endif // DEBUG
+
+		
+		//compare function
+		using compUnit = pair<size_t, double>;
+		std::function<bool(compUnit, compUnit)> cmpFunc =
+			[=](compUnit const &A, compUnit const &B)
+		{
+			auto a2 = A.second;
+			auto b2 = B.second;
+			return a2 < b2 ? true : false;
+		};
 
 
 		while (tskState._chsComPreTime ==M_MAX)
 		{
 			c_debug << "need add some agent in this task" << endl;
-			if (tskState._onTaskAgID[chsAgID] == false)
-			{
-				//vAgTaskOrderVal.count()
-				if (_orderPreFirstArrTime.count(AgTaskPair(chsAgID, chsTskID)) == 0)
-				{
-
-				}
-				else
-				{
-
-				}
-			}
-		}
-
-		if (tskState._vPreComTime[chsAgID] == M_MAX)
-		{
-			c_debug << "需要补充" << endl;
+			vector<pair<size_t, double>> _vAgSumOrderVal;
 			for (size_t i = 0; i < _agentNum; i++)
 			{
-				//该智能体不在该任务点
-				if (tskState._onTaskAgID[chsAgID] == false)
+				if (tskState._onTaskAgID[i] == false)
 				{
-					 v  
+					double sumOrderVal = 0;
+					for (size_t j = 0; j < _taskNum; j++)
+					{
+						AgTaskPair indexPair(i, j);
+						if (_orderPreFirstArrTime.count(indexPair) == 1)
+						{
+							sumOrderVal += mapAgTaskOrderVal[indexPair];
+						}
+						else
+						{
+#ifdef _DEBUG
+							c_debug << "not exist" << endl;
+#endif // _DEBUG
+						}
+					}
+					_vAgSumOrderVal.push_back(pair<size_t, double>(i, sumOrderVal));
 				}
 			}
+			auto maxAgSumOrderValIter =
+				std::max_element(_vAgSumOrderVal.begin(), _vAgSumOrderVal.end(), cmpFunc);
+			
+			chsAgID = (*maxAgSumOrderValIter).first;
+			
+			//_setAllocated.insert(par)
+			updateTimeMat(chsAgID, chsTskID);
 		}
+
+		//update the agent leave time
+		//there may be false 
+		for (auto &it : tskState._sortedArrTimeAgID)
+		{
+			auto &agState = _vAgentState[it];
+			agState._leaveTime = tskState._chsComPreTime;
+		}
+
 		
 	}
 	void DynamicConstrn::DminArrTimeAndMaxEmergentSolution()
@@ -456,16 +477,79 @@ namespace method {
 	}
 	void DynamicConstrn::updateTimeMat(size_t const & chsAgID, size_t const & chsTskID)
 	{
-		_setAllocated.insert(std::pair<size_t, size_t>(chsAgID, chsTskID));
+		//_setAllocated.insert(std::pair<size_t, size_t>(chsAgID, chsTskID));
 
-		
-		auto & tskState = _vTaskState[chsTskID];
+		auto &tskState = _vTaskState[chsTskID];
+
 		tskState.calAgArrState(chsAgID);
-		_vTaskState[chsTskID]._currentRatio -= _vAgentState[chsAgID]._ability;
+
 		double extDur = tskState.calExecuteDur();
-		double comTime = tskState._minElementArrTime + extDur;
+		if (extDur == M_MAX)
+		{
+			tskState._chsComPreTime = M_MAX;
+		}
+		else
+		{
+			tskState._chsComPreTime = extDur + tskState._changeRatioTime;
+		}		
+	}
+	void DynamicConstrn::infUpdateTimeMat(size_t const & chsAgID, size_t const & chsTskID)
+	{
+		_setAllocated.insert(std::pair<size_t, size_t>(chsAgID, chsTskID));
+		auto &tskState = _vTaskState[chsTskID];
 		
-		
+		tskState.calAgArrState(chsAgID);
+
+		double extDur = tskState.calExecuteDur();
+		if (extDur == M_MAX)
+		{
+			tskState._chsComPreTime = M_MAX;
+		}
+		else
+		{
+			tskState._chsComPreTime = extDur + tskState._changeRatioTime;
+		}
+	}
+	void DynamicConstrn::calChsComPreTime(size_t const & chsAgID, size_t const & chsTskID)
+	{
+		auto &tskState = _vTaskState[chsTskID];
+
+		tskState.calAgArrState(chsAgID);
+
+		double extDur = tskState.calExecuteDur();
+		if (extDur == M_MAX)
+		{
+			tskState._chsComPreTime = M_MAX;
+		}
+		else
+		{
+			tskState._chsComPreTime = extDur + tskState._changeRatioTime;
+		}
+	}
+	void DynamicConstrn::updateTimeMat(vector<size_t> const & vChsAgID, size_t const & chsTskID)
+	{
+		auto &chsTskState = _vTaskState[chsTskID];
+		for (size_t i = 0; i < vChsAgID.size(); i++)
+		{
+			size_t const &chsAgID = vChsAgID[i];
+			_setAllocated.insert(std::pair<size_t, size_t>(chsAgID, chsTskID));
+			auto &agState = _vAgentState[chsAgID];
+
+			for (size_t j = 0; j < _taskNum; j++)
+			{
+				auto &tskState = _vTaskState[j];
+				if (tskState._onTaskAgID[chsAgID] == true)
+				{
+					//this agent has been gone this task pnt;
+				}
+				else
+				{
+					double onRoadDur = getRoadDur(j, chsTskID);
+					tskState._vPreArrTime[chsAgID] = onRoadDur + agState._leaveTime;
+				}
+				//if(_setAllocated.count())
+			}
+		}
 	}
 	vector<size_t> DynamicConstrn::findCoordAgent(size_t const & agentid)
 	{
@@ -587,10 +671,44 @@ namespace method {
 
 	double DynamicConstrn::TaskState::calAgArrState(size_t const & agID)
 	{
-		double arrTime = _vPreArrTime[agID];
+		double const  &arrTime = _vPreArrTime[agID];
 		double changeDur = arrTime - this->_changeRatioTime;
-		_currentState = _currentState*exp(changeDur*_currentRatio);
-		this->_changeRatioTime = arrTime;
+		if (changeDur < 0)
+		{
+			cout << "bug is here" << endl;
+			for (auto it = _sortedArrTimeAgID.begin(); it != _sortedArrTimeAgID.end(); ++it)
+			{
+				if (arrTime < _vPreArrTime[*it])
+				{
+					_sortedArrTimeAgID.insert(it, agID);
+					break;
+				}
+			}
+#ifdef _DEBUG
+			for (size_t i = 0; i < _sortedArrTimeAgID.size(); i++)
+			{
+				c_debug << "agID  = " << _sortedArrTimeAgID[i] << " arriTime = " << _vPreArrTime[_sortedArrTimeAgID[i]] << endl;
+			}
+#endif // _DEBUG
+			_currentState = _initState;
+			_currentRatio = _initRatio;
+			_changeRatioTime = 0;
+			for (auto &it: _sortedArrTimeAgID)
+			{
+				changeDur =  _vPreArrTime[it] -  this->_changeRatioTime;
+				_currentState = _currentState*exp(changeDur*_currentRatio);
+				_changeRatioTime = _vPreArrTime[it];
+				_currentRatio = _currentRatio - (*_vAgAbilityPtr)[it];
+			}
+		}
+		else
+		{
+			_currentState = _currentState*exp(changeDur*_currentRatio);
+			this->_changeRatioTime = arrTime;
+			_sortedArrTimeAgID.push_back(agID);
+			_currentRatio = _currentRatio - (*_vAgAbilityPtr)[agID];
+		}
+		
 		return 0.0;
 	}
 
