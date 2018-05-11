@@ -176,6 +176,8 @@ namespace method {
 			double calAgArrState(size_t const & agID);
 			double preCalExecuteDur(double const &arrTime, double const &ability);
 			double preCalCompleteDur(double const &arrTime, double const &ability);
+			double preCalCompleteTime(size_t const &agID);
+
 
 			//set<size_t> _onTaskAgID;
 

@@ -575,15 +575,24 @@ namespace method {
 				}
 			}
 		}
+#ifdef _DEBUG
+		c_debug << "update choosen task pnt_____" << endl;
+#endif // _DEBUG
 		//update choosen task pnt 
 		for (size_t i = 0; i < _agentNum; i++)
 		{
-
+			if (chsTskState._onTaskAgID[i] != true)
+			{
+				chsTskState._vPreComTime[i] =
+					chsTskState.preCalCompleteDur(chsTskState._vPreArrTime[i], _vTaskAgent[i]._ability);
+			}
 		}
 
 #ifdef _DEBUG
 		this->writevTaskState();
+		c_debug << "break" << endl;
 #endif // _DEBUG
+
 	}
 	vector<size_t> DynamicConstrn::findCoordAgent(size_t const & agentid)
 	{
@@ -766,11 +775,155 @@ namespace method {
 		}
 		else {
 			double changeDur = arrTime - this->_changeRatioTime;
-			double preState = _currentState *exp(changeDur*_currentRatio);
-			double excDur = log(_completedThreshold / preState) / (_currentRatio - ability);
-			return excDur + arrTime;
+			if (changeDur >= 0)
+			{
+				double preState = _currentState *exp(changeDur*_currentRatio);
+				double excDur = log(_completedThreshold / preState) / (_currentRatio - ability);
+				return excDur + arrTime;
+			}
+			else
+			{
+				
+				//此处可以进行优化
+				vector<size_t> _addSortedAgID(_sortedArrTimeAgID);
+				bool addArrTimeBoolean = false;
+				for (auto &it : _sortedArrTimeAgID)
+				{
+					if (arrTime < _vPreArrTime[it])
+					{
+						if (!addArrTimeBoolean)
+						{
+							vChangeTime.push_back(arrTime);
+						}
+					}
+					else
+					{
+						vChangeTime.push_back(_vPreArrTime[it]);
+					}
+				}
+#ifdef _DEBUG
+				c_debug << "sortedSize  = " << _sortedArrTimeAgID.size() << "  addSize = " << vChangeTime.size() << endl;
+				for (auto &it : vChangeTime){
+					c_debug << "arriveTime = " << it << endl;
+				}
+#endif // _DEBUG
+				_currentState = _initState;
+				_currentRatio = _initRatio;
+				_changeRatioTime = 0;
+				for (auto &it : )
+				{
+					changeDur = _vPreArrTime[it] - this->_changeRatioTime;
+					_currentState = _currentState*exp(changeDur*_currentRatio);
+					_changeRatioTime = _vPreArrTime[it];
+					_currentRatio = _currentRatio - (*_vAgAbilityPtr)[it];
+				}
+			}
 		}
 		return 0;
+	}
+	double DynamicConstrn::TaskState::preCalCompleteTime(size_t const & agID)
+	{
+		double const &ability = (*_vAgAbilityPtr)[agID];
+		double const & arrTime = this->_vPreArrTime[agID];
+		if (ability <= this->_currentRatio) {
+			return std::numeric_limits<double>::max();
+		}
+		else {
+			double changeDur = arrTime - this->_changeRatioTime;
+			if (changeDur >= 0)
+			{
+				double preState = _currentState *exp(changeDur*_currentRatio);
+				double excDur = log(_completedThreshold / preState) / (_currentRatio - ability);
+				return excDur + arrTime;
+			}
+			else
+			{
+				//此处可以进行优化
+				vector<size_t> _addSortedAgID(_sortedArrTimeAgID);
+				bool addArrTimeBoolean = false;
+				for (auto &it : _sortedArrTimeAgID)
+				{
+					if (arrTime < _vPreArrTime[it])
+					{
+						if (!addArrTimeBoolean)
+						{
+							vChangeTime.push_back(arrTime);
+						}
+					}
+					else
+					{
+						if (ability <= this->_currentRatio) {
+							return std::numeric_limits<double>::max();
+						}
+						else {
+							double changeDur = arrTime - this->_changeRatioTime;
+							if (changeDur >= 0)
+							{
+								double preState = _currentState *exp(changeDur*_currentRatio);
+								double excDur = log(_completedThreshold / preState) / (_currentRatio - ability);
+								return excDur + arrTime;
+							}
+							else
+							{
+
+								//此处可以进行优化
+								vector<size_t> _addSortedAgID(_sortedArrTimeAgID);
+								bool addArrTimeBoolean = false;
+								for (auto &it : _sortedArrTimeAgID)
+								{
+									if (arrTime < _vPreArrTime[it])
+									{
+										if (!addArrTimeBoolean)
+										{
+											vChangeTime.push_back(arrTime);
+										}
+									}
+									else
+									{
+										vChangeTime.push_back(_vPreArrTime[it]);
+									}
+								}
+#ifdef _DEBUG
+								c_debug << "sortedSize  = " << _sortedArrTimeAgID.size() << "  addSize = " << vChangeTime.size() << endl;
+								for (auto &it : vChangeTime) {
+									c_debug << "arriveTime = " << it << endl;
+								}
+#endif // _DEBUG
+								_currentState = _initState;
+								_currentRatio = _initRatio;
+								_changeRatioTime = 0;
+								for (auto &it : )
+								{
+									changeDur = _vPreArrTime[it] - this->_changeRatioTime;
+									_currentState = _currentState*exp(changeDur*_currentRatio);
+									_changeRatioTime = _vPreArrTime[it];
+									_currentRatio = _currentRatio - (*_vAgAbilityPtr)[it];
+								}
+							}
+						}
+=342````````````````````````````````````````````````````````````````````````````````````````-* 000
+						vChangeTime.push_back(_vPreArrTime[it]);
+					}
+				}
+#ifdef _DEBUG
+				c_debug << "sortedSize  = " << _sortedArrTimeAgID.size() << "  addSize = " << vChangeTime.size() << endl;
+				for (auto &it : vChangeTime) {
+					c_debug << "arriveTime = " << it << endl;
+				}
+#endif // _DEBUG
+				_currentState = _initState;
+				_currentRatio = _initRatio;
+				_changeRatioTime = 0;
+				for (auto &it : )
+				{
+					changeDur = _vPreArrTime[it] - this->_changeRatioTime;
+					_currentState = _currentState*exp(changeDur*_currentRatio);
+					_changeRatioTime = _vPreArrTime[it];
+					_currentRatio = _currentRatio - (*_vAgAbilityPtr)[it];
+				}
+			}
+		}
+		return 0.0;
 	}
 	double DynamicConstrn::TaskState::getMinPreComTime()
 	{
